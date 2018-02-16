@@ -1,0 +1,17 @@
+{
+  "name": "blackjack-cli",
+  "version": "1.0.0",
+  "description": "nodejs blackjack cli game",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "game",
+    "blackjack",
+    "cli",
+    "nodejs"
+  ],
+  "author": "Eugene Alexeenko",
+  "license": "MIT"
+}
