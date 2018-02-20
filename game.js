@@ -1,4 +1,5 @@
 const readline = require('readline');
+const fs = require('fs');
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -49,30 +50,26 @@ class Game {
   determineWinner() {
     const dealerScore = this.getScore(this.dealerCards);
     const playerScore = this.getScore(this.playerCards);
-    let winner;
-
-    if (playerScore > 21) {
-      console.log(`Bust! Dealer win!`);
-      this.startQuestion();
-    }
 
     if (playerScore > dealerScore){
       console.log(`Player win! Player score: ${playerScore} > Dealer score: ${dealerScore}\n`);  
+      fs.appendFileSync('stat.txt',`\nPlayer win!\nPlayer score: ${playerScore} > Dealer score: ${dealerScore}\n`, 'utf8'); 
     } else if (playerScore === dealerScore){
-      console.log(`Draw! Dealer win!\n`);
+      console.log(`Draw! Dealer win!\nPlayer score: ${playerScore} = Dealer score: ${dealerScore}\n`);
+      fs.appendFileSync('stat.txt',`\nDraw! Dealer win!\n`, 'utf8'); 
     } else {
-      console.log(`Dealer win!\n`);
+      console.log(`Dealer win!\nPlayer score: ${playerScore} < Dealer score: ${dealerScore}\n`);
+      fs.appendFileSync('stat.txt',`\nDealer win!\n`, 'utf8'); 
     }
 
-    //TODO write result to file
-    console.log('...save to file\n');
+    console.log('...save to stat.txt\n');
     console.log('-----------------------------------------------\n');
 
     this.startQuestion();
   }
 
   startQuestion() {
-    rl.question('Would you like to play blackjack game? (Y)es or (N)o ? ', (answer = answer.toLowerCase().trim()) => {
+    rl.question('\nWould you like to play blackjack game? (Y)es or (N)o ? ', (answer = answer.toLowerCase().trim()) => {
       if (answer === 'yes' || answer === 'y') {
         console.log('\nYour answer: Yes, lets start!\n');
         this.initGame();
@@ -95,8 +92,10 @@ class Game {
         this.playerCards.push(card);
 
         if (this.getScore(this.playerCards) > 21) {
-          this.determineWinner();
-          //this.startQuestion();
+          console.log(`Bust! Dealer win!\n`);
+          fs.appendFileSync('stat.txt',`Bust! Dealer win!\n`, 'utf8'); 
+          this.startQuestion();
+          return;
         }
 
         console.log(`Dealer hand: (${this.getScore(this.dealerCards)}) \n${this.showCards(this.dealerCards)}`);
@@ -157,11 +156,21 @@ class Game {
   }
 }
 
-console.log(`
+const stat = process.argv[2];
+
+if (stat === 'stat') {
+  fs.readFile('stat.txt', 'utf8', (err, data) => {
+    if (err) throw err;
+    console.log(data);
+    process.exit();
+  });
+} else {
+  console.log(`
 ////////////////////////////////////////////////////////////////////////////////
 //              ♠, ♥, ♦, ♣         BLACKJACK GAME          ♠, ♥, ♦, ♣         //
 ////////////////////////////////////////////////////////////////////////////////
-`);
+  `);
 
-const game = new Game();
-game.startQuestion();
+  const game = new Game();
+  game.startQuestion();
+}
